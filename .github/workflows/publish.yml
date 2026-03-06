@@ -1,0 +1,39 @@
+name: Installation et Publication de l'application
+on:
+  push:
+    branches: [ main ] # Se déclenche quand vous envoyez sur la branche main
+
+jobs:
+  deploy:
+    [cite_start]runs-on: self-hosted # Indique d'utiliser votre runner Ubuntu [cite: 287]
+    steps:
+      - name: Récupération du code
+        [cite_start]uses: actions/checkout@v4 # Récupère vos fichiers depuis GitHub [cite: 290]
+
+      - name: Installation nginx
+        run: |
+          sudo apt update # [cite: 293]
+          sudo apt install -y nginx # [cite: 294]
+          sudo mkdir -p /var/www/site # [cite: 295]
+          sudo chown -R www-data:www-data /var/www/site # [cite: 296]
+
+      - name: Configuration nginx
+        run: |
+          sudo tee /etc/nginx/sites-available/site > /dev/null <<EOF
+          server {
+              listen 80;
+              root /var/www/site;
+              index index.html;
+              location / {
+                  try_files \$uri \$uri/ =404;
+              }
+          }
+          EOF
+          sudo ln -sf /etc/nginx/sites-available/site /etc/nginx/sites-enabled/site # [cite: 310]
+          sudo rm -f /etc/nginx/sites-enabled/default # [cite: 311]
+          sudo cp index.html /var/www/site/index.html # Copie votre page [cite: 313]
+          sudo chown www-data:www-data /var/www/site/index.html # [cite: 314]
+
+      - name: Redémarrage nginx
+        run: |
+          sudo systemctl restart nginx # Relance le serveur pour appliquer les changements [cite: 318]
