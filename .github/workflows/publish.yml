@@ -1,7 +1,8 @@
 name: Installation et Publication de l'application
 on:
   push:
-    branches: [ main ] # Se déclenche quand vous envoyez sur la branche main
+    branches:
+      [ main ] # Se déclenche quand vous envoyez sur la branche main
 
 jobs:
   deploy:
